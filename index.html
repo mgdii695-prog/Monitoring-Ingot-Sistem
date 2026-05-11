@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>MONITORING INGOT DIGITAL</title>
+
+<!-- EXCEL -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<!-- PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:Arial,sans-serif;
+background:
+radial-gradient(circle at top,#2b2b2b,#000);
+color:#fff;
+overflow-x:hidden;
+}
+
+body::before{
+content:"";
+position:fixed;
+inset:0;
+background:
+radial-gradient(circle at 20% 20%,rgba(255,80,0,.2),transparent 35%),
+radial-gradient(circle at 80% 30%,rgba(255,120,0,.18),transparent 40%),
+radial-gradient(circle at 50% 90%,rgba(255,50,0,.15),transparent 45%);
+animation:glow 6s infinite alternate;
+z-index:-1;
+}
+
+@keyframes glow{
+from{filter:blur(8px);}
+to{filter:blur(16px) brightness(1.2);}
+}
+
+/* TOPBAR */
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:12px 20px;
+background:rgba(20,20,20,.9);
+border-bottom:1px solid rgba(255,120,0,.3);
+position:sticky;
+top:0;
+z-index:100;
+}
+
+.topbar h2{
+font-size:14px;
+color:#ffb347;
+}
+
+#datetime{
+font-size:13px;
+}
+
+/* CONTAINER */
+.container{
+max-width:1600px;
+margin:auto;
+padding:20px;
+}
+
+/* HEADER */
+.header{
+padding:25px;
+border-radius:20px;
+text-align:center;
+margin-bottom:20px;
+background:
+linear-gradient(135deg,#ff3c00,#ff9900,#ff3c00);
+box-shadow:0 0 20px rgba(255,120,0,.3);
+}
+
+.header h1{
+font-size:32px;
+}
+
+/* SUMMARY */
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+gap:12px;
+margin-bottom:25px;
+}
+
+.card{
+background:rgba(20,20,20,.88);
+padding:18px;
+border-radius:18px;
+text-align:center;
+border:1px solid rgba(255,120,0,.2);
+transition:.3s;
+}
+
+.card:hover{
+transform:translateY(-3px);
+box-shadow:0 0 15px rgba(255,120,0,.3);
+}
+
+.card h3{
+font-size:14px;
+margin-bottom:8px;
+color:#ffb347;
+}
+
+.card p{
+font-size:24px;
+font-weight:bold;
+}
+
+/* FORM */
+form{
+background:rgba(20,20,20,.88);
+padding:20px;
+border-radius:20px;
+margin-bottom:20px;
+border:1px solid rgba(255,120,0,.2);
+}
+
+.form-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:12px;
+}
+
+input,select{
+width:100%;
+padding:12px;
+border-radius:12px;
+border:none;
+background:#111;
+color:#fff;
+border:1px solid rgba(255,120,0,.25);
+outline:none;
+}
+
+input:focus,
+select:focus{
+border:1px solid #ff9900;
+}
+
+/* BUTTON SMALL */
+.button-group{
+display:flex;
+gap:10px;
+margin-top:15px;
+flex-wrap:wrap;
+}
+
+.btn{
+padding:10px 18px;
+border:none;
+border-radius:10px;
+font-size:12px;
+font-weight:bold;
+cursor:pointer;
+transition:.3s;
+width:auto;
+min-width:140px;
+color:#fff;
+}
+
+.btn-save{
+background:linear-gradient(135deg,#ff3c00,#ff9900);
+}
+
+.btn-excel{
+background:linear-gradient(135deg,#1d6f42,#2ca56d);
+}
+
+.btn-pdf{
+background:linear-gradient(135deg,#b71c1c,#f44336);
+}
+
+.btn:hover{
+transform:translateY(-2px);
+opacity:.95;
+box-shadow:0 0 12px rgba(255,255,255,.15);
+}
+
+/* TABLE */
+.table-container{
+overflow:auto;
+border-radius:18px;
+margin-bottom:25px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+min-width:1500px;
+background:rgba(20,20,20,.92);
+}
+
+th,td{
+padding:10px;
+text-align:center;
+font-size:12px;
+border-bottom:1px solid rgba(255,255,255,.05);
+}
+
+th{
+background:
+linear-gradient(135deg,#ff3c00,#ff9900);
+position:sticky;
+top:0;
+}
+
+tr:hover{
+background:rgba(255,120,0,.08);
+}
+
+/* ACTION BUTTON */
+.action-btn{
+padding:6px 10px;
+border:none;
+border-radius:8px;
+color:#fff;
+cursor:pointer;
+margin:2px;
+font-size:11px;
+}
+
+.edit-btn{
+background:#2196f3;
+}
+
+.delete-btn{
+background:#f44336;
+}
+
+/* HISTORY */
+.history-box{
+background:rgba(20,20,20,.88);
+padding:20px;
+border-radius:20px;
+border:1px solid rgba(255,120,0,.2);
+}
+
+.history-title{
+margin-bottom:15px;
+color:#ffb347;
+}
+
+.history-item{
+padding:8px 10px;
+border-radius:10px;
+margin-bottom:6px;
+background:rgba(255,255,255,.04);
+font-size:10px;
+line-height:1.4;
+border-left:3px solid #f44336;
+white-space:nowrap;
+overflow-x:auto;
+}
+
+.deleted-time{
+color:#ff8a80;
+font-weight:bold;
+}
+
+@media(max-width:768px){
+
+.header h1{
+font-size:22px;
+}
+
+.card p{
+font-size:20px;
+}
+
+.button-group{
+flex-direction:column;
+}
+
+.btn{
+width:100%;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+
+<h2>
+PT. TOYOTA MOTOR MANUFACTURING INDONESIA
+</h2>
+
+<div id="datetime"></div>
+
+</div>
+
+<div class="container">
+
+<!-- HEADER -->
+<div class="header">
+<h1>MONITORING INGOT DIGITAL</h1>
+</div>
+
+<!-- SUMMARY -->
+<div class="grid">
+
+<div class="card">
+<h3>Total Awal</h3>
+<p id="totalAwal">0</p>
+</div>
+
+<div class="card">
+<h3>Stok Akhir</h3>
+<p id="totalAkhir">0</p>
+</div>
+
+<div class="card">
+<h3>FC</h3>
+<p id="totalFC">0</p>
+</div>
+
+<div class="card">
+<h3>FCD</h3>
+<p id="totalFCD">0</p>
+</div>
+
+<div class="card">
+<h3>Melting</h3>
+<p id="totalMelting">0</p>
+</div>
+
+<div class="card">
+<h3>Pasir</h3>
+<p id="totalPasir">0</p>
+</div>
+
+<div class="card">
+<h3>Debu</h3>
+<p id="totalDebu">0</p>
+</div>
+
+<div class="card">
+<h3>Terak M</h3>
+<p id="totalTM">0</p>
+</div>
+
+<div class="card">
+<h3>Terak P</h3>
+<p id="totalTP">0</p>
+</div>
+
+<div class="card">
+<h3>Buang</h3>
+<p id="totalBI">0</p>
+</div>
+
+<div class="card">
+<h3>DiePress</h3>
+<p id="totalDP">0</p>
+</div>
+
+</div>
+
+<!-- FORM -->
+<form id="form">
+
+<div class="form-grid">
+
+<select id="namaSelect">
+<option value="">-- Pilih Nama --</option>
+</select>
+
+<input
+type="text"
+id="namaInput"
+placeholder="Input Nama">
+
+<select id="shift">
+<option value="RED">SHIFT RED</option>
+<option value="WHITE">SHIFT WHITE</option>
+</select>
+
+<input
+type="date"
+id="tanggal"
+required>
+
+<input
+type="number"
+id="stokAwal"
+placeholder="Stok Awal"
+readonly>
+
+<input type="number" id="fc" placeholder="FC">
+
+<input type="number" id="fcd" placeholder="FCD">
+
+<input type="number" id="melting" placeholder="Melting">
+
+<input
+type="number"
+id="buangIngot"
+placeholder="Buang Ingot">
+
+<input
+type="number"
+id="pasir"
+placeholder="Pasir">
+
+<input
+type="number"
+id="debu"
+placeholder="Debu">
+
+<input
+type="number"
+id="terakMelting"
+placeholder="Terak Melting">
+
+<input
+type="number"
+id="terakPouring"
+placeholder="Terak Pouring">
+
+<input
+type="number"
+id="diepress"
+placeholder="Die Press">
+
+<input
+type="number"
+id="stokAkhir"
+placeholder="Stok Akhir"
+readonly>
+
+</div>
+
+<!-- BUTTON -->
+<div class="button-group">
+
+<button
+type="submit"
+class="btn btn-save">
+
+💾 SIMPAN
+
+</button>
+
+<button
+type="button"
+class="btn btn-excel"
+onclick="exportExcel()">
+
+📗 EXCEL
+
+</button>
+
+<button
+type="button"
+class="btn btn-pdf"
+onclick="exportPDF()">
+
+📄 PDF
+
+</button>
+
+</div>
+
+</form>
+
+<!-- TABLE -->
+<div class="table-container">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Nama</th>
+<th>Shift</th>
+<th>Tanggal</th>
+<th>Awal</th>
+<th>Akhir</th>
+<th>FC</th>
+<th>FCD</th>
+<th>Melting</th>
+<th>Buang</th>
+<th>Pasir</th>
+<th>Debu</th>
+<th>TM</th>
+<th>TP</th>
+<th>DP</th>
+<th>Aksi</th>
+
+</tr>
+
+</thead>
+
+<tbody id="table"></tbody>
+
+</table>
+
+</div>
+
+<!-- HISTORY -->
+<div class="history-box">
+
+<h3 class="history-title">
+History Data Dihapus
+</h3>
+
+<div id="history"></div>
+
+</div>
+
+</div>
+
+<script>
+
+/* STORAGE */
+let data =
+JSON.parse(
+localStorage.getItem("stok_ingot")
+) || [];
+
+let historyDelete =
+JSON.parse(
+localStorage.getItem("history_ingot")
+) || [];
+
+const el=id=>document.getElementById(id);
+
+/* JAM */
+setInterval(()=>{
+
+el("datetime").innerText =
+new Date().toLocaleString("id-ID");
+
+},1000);
+
+/* VALUE */
+function val(id){
+
+return Number(el(id).value)||0;
+
+}
+
+/* HITUNG */
+function hitung(){
+
+let awal =
+Number(el("stokAwal").value)||0;
+
+let plus =
+val("fc") +
+val("fcd");
+
+let minus =
+val("melting") +
+val("buangIngot") +
+val("diepress");
+
+el("stokAkhir").value =
+awal + plus - minus;
+
+}
+
+/* LISTENER */
+[
+"fc",
+"fcd",
+"melting",
+"buangIngot",
+"pasir",
+"debu",
+"terakMelting",
+"terakPouring",
+"diepress"
+]
+.forEach(i=>{
+
+el(i)
+.addEventListener("input",hitung);
+
+});
+
+/* STOK AWAL */
+function setStokAwal(){
+
+el("stokAwal").value =
+data.length
+? data[0].akhir
+: 0;
+
+}
+
+/* UPDATE NAMA */
+function updateNama(){
+
+let select =
+el("namaSelect");
+
+let namaList = [
+
+...new Set(
+data.map(d=>d.nama)
+.filter(Boolean)
+)
+
+];
+
+select.innerHTML =
+`<option value="">
+-- Pilih Nama --
+</option>`;
+
+namaList.forEach(n=>{
+
+select.innerHTML += `
+<option value="${n}">
+${n}
+</option>`;
+
+});
+
+}
+
+el("namaSelect")
+.addEventListener("change",function(){
+
+el("namaInput").value =
+this.value;
+
+});
+
+/* ENTER */
+el("namaInput")
+.addEventListener("keydown",e=>{
+
+if(e.key==="Enter"){
+
+e.preventDefault();
+
+}
+
+});
+
+/* SAVE + EDIT */
+document
+.getElementById("form")
+.addEventListener("submit",e=>{
+
+e.preventDefault();
+
+let editId =
+e.target.getAttribute("data-edit-id");
+
+let item = {
+
+id: editId ? Number(editId) : Date.now(),
+
+nama:
+el("namaInput").value,
+
+shift:
+el("shift").value,
+
+tanggal:
+el("tanggal").value,
+
+awal:
+Number(
+el("stokAwal").value
+)||0,
+
+akhir:
+Number(
+el("stokAkhir").value
+)||0,
+
+fc:val("fc"),
+
+fcd:val("fcd"),
+
+melting:val("melting"),
+
+buangIngot:
+val("buangIngot"),
+
+pasir:
+val("pasir"),
+
+debu:
+val("debu"),
+
+terakMelting:
+val("terakMelting"),
+
+terakPouring:
+val("terakPouring"),
+
+diepress:
+val("diepress")
+
+};
+
+if(editId){
+
+data = data.map(d=>
+d.id == editId ? item : d
+);
+
+e.target.removeAttribute(
+"data-edit-id"
+);
+
+}else{
+
+data.unshift(item);
+
+}
+
+localStorage.setItem(
+"stok_ingot",
+JSON.stringify(data)
+);
+
+e.target.reset();
+
+setStokAwal();
+
+hitung();
+
+render();
+
+});
+
+/* DELETE */
+function hapus(id){
+
+let konfirmasi =
+confirm(
+"Yakin ingin menghapus data ini?"
+);
+
+if(!konfirmasi) return;
+
+let cari =
+data.find(d=>d.id===id);
+
+if(!cari) return;
+
+historyDelete.unshift({
+
+...cari,
+
+deletedAt:
+new Date()
+.toLocaleString("id-ID"),
+
+deletedRaw:
+new Date().toISOString()
+
+});
+
+localStorage.setItem(
+"history_ingot",
+JSON.stringify(historyDelete)
+);
+
+data =
+data.filter(d=>d.id!==id);
+
+localStorage.setItem(
+"stok_ingot",
+JSON.stringify(data)
+);
+
+setStokAwal();
+
+render();
+
+}
+
+/* EDIT */
+function editData(id){
+
+let d =
+data.find(x=>x.id===id);
+
+if(!d) return;
+
+el("namaInput").value =
+d.nama;
+
+el("shift").value =
+d.shift;
+
+el("tanggal").value =
+d.tanggal;
+
+el("stokAwal").value =
+d.awal;
+
+el("fc").value =
+d.fc;
+
+el("fcd").value =
+d.fcd;
+
+el("melting").value =
+d.melting;
+
+el("buangIngot").value =
+d.buangIngot;
+
+el("pasir").value =
+d.pasir;
+
+el("debu").value =
+d.debu;
+
+el("terakMelting").value =
+d.terakMelting;
+
+el("terakPouring").value =
+d.terakPouring;
+
+el("diepress").value =
+d.diepress;
+
+el("stokAkhir").value =
+d.akhir;
+
+document
+.getElementById("form")
+.setAttribute(
+"data-edit-id",
+id
+);
+
+window.scrollTo({
+top:0,
+behavior:"smooth"
+});
+
+}
+
+/* HISTORY AUTO HAPUS */
+function bersihkanHistory(){
+
+let now = Date.now();
+
+historyDelete =
+historyDelete.filter(h=>{
+
+let waktu =
+new Date(
+h.deletedRaw || now
+).getTime();
+
+return (
+now - waktu
+) < 604800000;
+
+});
+
+localStorage.setItem(
+"history_ingot",
+JSON.stringify(historyDelete)
+);
+
+}
+
+/* EXPORT EXCEL */
+function exportExcel(){
+
+let exportData = data.map(d=>({
+
+Nama:d.nama,
+Shift:d.shift,
+Tanggal:d.tanggal,
+Stok_Awal:d.awal,
+Stok_Akhir:d.akhir,
+FC:d.fc,
+FCD:d.fcd,
+Melting:d.melting,
+Buang_Ingot:d.buangIngot,
+Pasir:d.pasir,
+Debu:d.debu,
+Terak_Melting:d.terakMelting,
+Terak_Pouring:d.terakPouring,
+DiePress:d.diepress
+
+}));
+
+let wb =
+XLSX.utils.book_new();
+
+let ws =
+XLSX.utils.json_to_sheet(exportData);
+
+XLSX.utils.book_append_sheet(
+wb,
+ws,
+"Monitoring Ingot"
+);
+
+XLSX.writeFile(
+wb,
+"MONITORING_INGOT.xlsx"
+);
+
+}
+
+/* EXPORT PDF */
+async function exportPDF(){
+
+const { jsPDF } =
+window.jspdf;
+
+let doc =
+new jsPDF('landscape');
+
+doc.setFontSize(16);
+
+doc.text(
+"MONITORING INGOT DIGITAL",
+14,
+15
+);
+
+let rows = data.map(d=>[
+
+d.nama,
+d.shift,
+d.tanggal,
+d.awal,
+d.akhir,
+d.fc,
+d.fcd,
+d.melting,
+d.buangIngot,
+d.pasir,
+d.debu,
+d.terakMelting,
+d.terakPouring,
+d.diepress
+
+]);
+
+doc.autoTable({
+
+startY:25,
+
+head:[[
+"Nama",
+"Shift",
+"Tanggal",
+"Awal",
+"Akhir",
+"FC",
+"FCD",
+"Melting",
+"Buang",
+"Pasir",
+"Debu",
+"TM",
+"TP",
+"DP"
+]],
+
+body:rows,
+
+styles:{
+fontSize:8
+}
+
+});
+
+doc.save(
+"MONITORING_INGOT.pdf"
+);
+
+}
+
+/* RENDER */
+function render(){
+
+bersihkanHistory();
+
+let t =
+el("table");
+
+t.innerHTML = "";
+
+let sum = {
+
+awal:0,
+fc:0,
+fcd:0,
+melting:0,
+pasir:0,
+debu:0,
+tm:0,
+tp:0,
+bi:0,
+dp:0
+
+};
+
+data.forEach(d=>{
+
+sum.awal += d.awal;
+
+sum.fc += d.fc;
+
+sum.fcd += d.fcd;
+
+sum.melting += d.melting;
+
+sum.pasir += d.pasir;
+
+sum.debu += d.debu;
+
+sum.tm += d.terakMelting;
+
+sum.tp += d.terakPouring;
+
+sum.bi += d.buangIngot;
+
+sum.dp += d.diepress;
+
+t.innerHTML += `
+
+<tr>
+
+<td>${d.nama}</td>
+
+<td>${d.shift}</td>
+
+<td>${d.tanggal}</td>
+
+<td>${d.awal}</td>
+
+<td>${d.akhir}</td>
+
+<td>${d.fc}</td>
+
+<td>${d.fcd}</td>
+
+<td>${d.melting}</td>
+
+<td>${d.buangIngot}</td>
+
+<td>${d.pasir}</td>
+
+<td>${d.debu}</td>
+
+<td>${d.terakMelting}</td>
+
+<td>${d.terakPouring}</td>
+
+<td>${d.diepress}</td>
+
+<td>
+
+<button
+class="action-btn edit-btn"
+onclick="editData(${d.id})">
+
+EDIT
+
+</button>
+
+<button
+class="action-btn delete-btn"
+onclick="hapus(${d.id})">
+
+HAPUS
+
+</button>
+
+</td>
+
+</tr>
+
+`;
+
+});
+
+el("totalAwal").innerText =
+sum.awal;
+
+el("totalAkhir").innerText =
+data.length
+? data[0].akhir
+: 0;
+
+el("totalFC").innerText =
+sum.fc;
+
+el("totalFCD").innerText =
+sum.fcd;
+
+el("totalMelting").innerText =
+sum.melting;
+
+el("totalPasir").innerText =
+sum.pasir;
+
+el("totalDebu").innerText =
+sum.debu;
+
+el("totalTM").innerText =
+sum.tm;
+
+el("totalTP").innerText =
+sum.tp;
+
+el("totalBI").innerText =
+sum.bi;
+
+el("totalDP").innerText =
+sum.dp;
+
+/* HISTORY */
+let h =
+el("history");
+
+h.innerHTML = "";
+
+if(historyDelete.length===0){
+
+h.innerHTML = `
+<div class="history-item">
+Belum ada data dihapus
+</div>
+`;
+
+}else{
+
+historyDelete.forEach(x=>{
+
+h.innerHTML += `
+
+<div class="history-item">
+
+<b>${x.nama}</b> |
+
+Tanggal : ${x.tanggal} |
+
+Shift : ${x.shift} |
+
+Awal : ${x.awal} |
+
+Akhir : ${x.akhir} |
+
+FC : ${x.fc} |
+
+FCD : ${x.fcd} |
+
+Melting : ${x.melting} |
+
+Buang : ${x.buangIngot} |
+
+Pasir : ${x.pasir} |
+
+Debu : ${x.debu} |
+
+TM : ${x.terakMelting} |
+
+TP : ${x.terakPouring} |
+
+DP : ${x.diepress} |
+
+<span class="deleted-time">
+DIHAPUS : ${x.deletedAt}
+</span>
+
+</div>
+
+`;
+
+});
+
+}
+
+updateNama();
+
+}
+
+/* INIT */
+setStokAwal();
+
+hitung();
+
+render();
+
+</script>
+
+</body>
+</html>
